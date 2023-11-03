@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role     String    // You can use an enum for role (admin or regular user)
+  carts     Cart[]
+  reviews   Review[]
+  order Order[]
+
+}
+
+model Product {
+  id              Int         @id @default(autoincrement())
+  name            String
+  description     String
+  price           Float
+  stock_quantity  Int
+  reviews         Review[]
+    orderItem OrderItem[]
+    cartItem CartItem[]
+}
+
+model Cart {
+  id        Int         @id @default(autoincrement())
+  userId    Int
+  user      User        @relation(fields: [userId], references: [id])
+  cartItems CartItem[]
+}
+
+model CartItem {
+  id         Int      @id @default(autoincrement())
+  cartId     Int
+  cart       Cart     @relation(fields: [cartId], references: [id])
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+  quantity   Int
+}
+
+model Order {
+  id           Int          @id @default(autoincrement())
+  userId       Int
+  user         User         @relation(fields: [userId], references: [id])
+  order_date   DateTime     @default(now())
+  total_price  Float
+  orderItems   OrderItem[]
+}
+
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+  orderId    Int
+  order      Order    @relation(fields: [orderId], references: [id])
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+  quantity   Int
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+  rating     Int
+  comment    String
+}

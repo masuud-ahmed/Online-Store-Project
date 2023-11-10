@@ -1,10 +1,10 @@
- import express from "express";
+import express from "express";
 import prisma from "./lib/index.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import "dotenv/config.js";
+import adminVerify from "../Middleware/adminVerify.js";
 const SECTRET_KEY = "secret"
-import userVerify from "../Middleware/userVerify.js"; 
 
 const router = express.Router();
 
@@ -12,21 +12,21 @@ router.post("/signup", async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
-    const existinguser = await prisma.user.findUnique({
+    const existingadmin = await prisma.admin.findUnique({
       where: {
         email: email,
       },
     });
 
-    if (existinguser) {
+    if (existingadmin) {
       return res
         .status(409)
-        .json({ status: 409, message: "user already exists" });
+        .json({ status: 409, message: "admin already exists" });
     }
 
     const hashePassword = await bcrypt.hash(password, 10);
 
-    const newuser = await prisma.user.create({
+    const newadmin = await prisma.admin.create({
       data: {
         name: name,
         email: email,
@@ -36,7 +36,7 @@ router.post("/signup", async (req, res) => {
 
     res
       .status(201)
-      .json({ status: 201, message: "user created successFully", newuser });
+      .json({ status: 201, message: "admin created successFully", newadmin });
   } catch (error) {
     res.status(500).json({
       status: 500,
@@ -50,17 +50,17 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const existinguser = await prisma.user.findUnique({
+    const existingadmin = await prisma.admin.findUnique({
       where: {
         email: email,
       },
     });
 
-    if (!existinguser) {
-      return res.status(404).json({ status: 404, message: "user not found" });
+    if (!existingadmin) {
+      return res.status(404).json({ status: 404, message: "admin not found" });
     }
 
-    const isCorrectPassword = bcrypt.compare(password, existinguser.password);
+    const isCorrectPassword = bcrypt.compare(password, existingadmin.password);
 
     if (!isCorrectPassword) {
       return res
@@ -69,14 +69,14 @@ router.post("/login", async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: existinguser.id},
+      { id: existingadmin.id, email: existingadmin.email },
       SECTRET_KEY,
       { expiresIn: "1h" }
     );
 
     res
       .status(200)
-      .json({ status: 200, message: "user logged in successfully", token });
+      .json({ status: 200, message: "admin logged in successfully", token });
   } catch (error) {
     res.status(500).json({
       status: 500,
@@ -88,13 +88,13 @@ router.post("/login", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const users = await prisma.user.findMany()
+    const admins = await prisma.admin.findMany()
 
-    if(users.length === 0) {
-      return res.status(404).json({status: 200, message: "users not found"})
+    if(admins.length === 0) {
+      return res.status(404).json({status: 200, message: "admins not found"})
     }
 
-    res.status(200).json(users)
+    res.status(200).json(admins)
     
   } catch (error) {
     res.status(500).json({
@@ -105,13 +105,14 @@ router.get("/", async (req, res) => {
   }
 })
 
-router.get("/currentUser", userVerify, async (req, res) => {
+router.get("/admin", adminVerify , async (req, res) => {
   try {
-    const userId = req.user.id
+    const adminId = req.admin.id
+    console.log("id:", adminId)
     
-    const user = await prisma.user.findUnique({
+    const admin = await prisma.admin.findUnique({
       where: {
-        id: userId,
+        id: adminId,
       },
       select: {
         id: true,
@@ -120,11 +121,11 @@ router.get("/currentUser", userVerify, async (req, res) => {
       }
     });
 
-    if(!user) {
-      return res.status(404).json({status: 200, message: "user not found"})
+    if(!admin) {
+      return res.status(404).json({status: 200, message: "admin not found"})
     }
 
-    res.status(200).json(user)
+    res.status(200).json(admin)
     
   } catch (error) {
     res.status(500).json({
@@ -134,5 +135,6 @@ router.get("/currentUser", userVerify, async (req, res) => {
     });
   }
 })
+
 
 export default router;

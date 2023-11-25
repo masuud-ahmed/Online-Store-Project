@@ -71,7 +71,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign(
       { id: existinguser.id},
       SECTRET_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
 
     res

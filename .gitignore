@@ -1,3 +1,36 @@
 node_modules
 # Keep environment variables out of version control
 .env
+
+User:
+
+One-to-Many with Cart: A user can have multiple carts.
+One-to-Many with Review: A user can submit multiple reviews.
+
+Product:
+
+One-to-Many with Review: A product can have multiple reviews.
+
+Cart:
+
+One-to-Many with CartItem: A cart can have multiple cart items.
+Many-to-One with User: A cart belongs to a user.
+
+CartItem:
+
+Many-to-One with Cart: A cart item belongs to a cart.
+Many-to-One with Product: A cart item represents a specific product in the cart.
+
+Order:
+
+One-to-Many with OrderItem: An order can have multiple order items.
+Many-to-One with User: An order belongs to a user.
+OrderItem:
+
+Many-to-One with Order: An order item belongs to an order.
+Many-to-One with Product: An order item represents a specific product in the order.
+
+Review:
+
+Many-to-One with User: A review belongs to a user.
+Many-to-One with Product: A review belongs to a product.

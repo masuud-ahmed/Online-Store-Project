@@ -60,7 +60,7 @@ router.post("/login", async (req, res) => {
       return res.status(404).json({ status: 404, message: "admin not found" });
     }
 
-    const isCorrectPassword = bcrypt.compare(password, existingadmin.password);
+    const isCorrectPassword = await bcrypt.compare(password, existingadmin.password);
 
     if (!isCorrectPassword) {
       return res
@@ -71,7 +71,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign(
       { id: existingadmin.id, email: existingadmin.email },
       SECTRET_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
 
     res

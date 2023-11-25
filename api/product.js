@@ -5,9 +5,8 @@ import jwt from "jsonwebtoken";
 import "dotenv/config.js";
 import userVerify from "../Middleware/userVerify.js";
 import adminVerify from "../Middleware/adminVerify.js";
-const SECTRET_KEY = process.env.SECRET_KEY;
 
-const router = express.Router()
+const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
@@ -21,40 +20,28 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const products = await prisma.products.findUnique({
-      where: { id: Number(id) },
-      if(products = null) {
-        return res.status(404).json({ error: "product not found" });
-      },
-    });
-    res.json(products);
-  } catch (error) {}
-});
-
-///post
+// post
 router.post("/", adminVerify, async (req, res) => {
   try {
-    const {         
-        name ,  
-        description,        
-        price,          
-        stock_quantity } = req.body;
+    const { name, description, price, stock_quantity } = req.body;
+
     const product = await prisma.product.create({
       data: {
         name,
         description,
         price,
         stock_quantity,
-        adminId: req.admin.id
+        adminId: req.admin.id,
       },
     });
+
     if (!product) {
-      return res.status(404).json({ error: "Not Found" });
+      return res.status(404).json({ error: "Product not created" });
     }
-    res.status(200).json({status: 200, message: "Product created successfully"});
+
+    res
+      .status(200)
+      .json({ status: 200, message: "Product created successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -63,11 +50,7 @@ router.post("/", adminVerify, async (req, res) => {
 router.put("/:id", adminVerify, async (req, res) => {
   try {
     const { id } = req.params;
-    const {              
-        name ,
-        description,          
-        price,          
-        stock_quantity } = req.body;
+    const { name, description, price, stock_quantity } = req.body;
 
     const product = await prisma.product.update({
       where: {
@@ -78,14 +61,16 @@ router.put("/:id", adminVerify, async (req, res) => {
         price,
         description,
         stock_quantity,
-        adminId: req.admin.id
+        adminId: req.admin.id,
       },
     });
 
     if (!product) {
       return res.status(404).json({ error: "not found" });
     }
-    res.status(200).json({status: 200, message: "Product updated successfully"});
+    res
+      .status(200)
+      .json({ status: 200, message: "Product updated successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -100,7 +85,9 @@ router.delete("/:id", adminVerify, async (req, res) => {
     if (!product) {
       return res.status(404).json({ error: "product not found" });
     }
-    res.status(200).json({status: 200, message: "Product deleted successfully"});
+    res
+      .status(200)
+      .json({ status: 200, message: "Product deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

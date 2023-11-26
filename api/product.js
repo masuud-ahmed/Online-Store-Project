@@ -8,7 +8,10 @@ import adminVerify from "../Middleware/adminVerify.js";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+
+/// get product 
+
+router.get("/", userVerify, async (req, res) => {
   try {
     const products = await prisma.product.findMany();
     if (products.length === 0) {
@@ -20,7 +23,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// post
+// Create a product 
 router.post("/", adminVerify, async (req, res) => {
   try {
     const { name, description, price, stock_quantity } = req.body;
@@ -31,6 +34,7 @@ router.post("/", adminVerify, async (req, res) => {
         description,
         price,
         stock_quantity,
+        image,
         adminId: req.admin.id,
       },
     });
@@ -47,6 +51,9 @@ router.post("/", adminVerify, async (req, res) => {
   }
 });
 
+
+/// modify a product
+
 router.put("/:id", adminVerify, async (req, res) => {
   try {
     const { id } = req.params;
@@ -61,6 +68,7 @@ router.put("/:id", adminVerify, async (req, res) => {
         price,
         description,
         stock_quantity,
+        image,
         adminId: req.admin.id,
       },
     });
@@ -76,6 +84,8 @@ router.put("/:id", adminVerify, async (req, res) => {
   }
 });
 
+
+/// delete product
 router.delete("/:id", adminVerify, async (req, res) => {
   try {
     const { id } = req.params;

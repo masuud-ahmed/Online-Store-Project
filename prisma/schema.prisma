@@ -5,8 +5,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./online.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Admin {
@@ -37,11 +37,13 @@ model Product {
   description    String
   price          Float
   stock_quantity Int
+  image String @default("https://www.bing.com/images/search?view=detailV2&ccid=6Jvo4mwZ&id=3C01B1F5038867A7B06EF765E1B08E2140699065&thid=OIP.6Jvo4mwZ9zGQCvjwr_xKSwHaE7&mediaurl=https%3a%2f%2fimages.pexels.com%2fphotos%2f1287550%2fpexels-photo-1287550.jpeg%3fcs%3dsrgb%26dl%3dsunset-1287550.jpg%26fm%3djpg&cdnurl=https%3a%2f%2fth.bing.com%2fth%2fid%2fR.e89be8e26c19f731900af8f0affc4a4b%3frik%3dZZBpQCGOsOFl9w%26pid%3dImgRaw%26r%3d0&exph=5461&expw=8192&q=picture&simid=608034199952385484&FORM=IRPRST&ck=29BE8AD8791A32D28A986D1460EEF9F5&selectedIndex=2&ajaxhist=0&ajaxserp=0")
   reviews        Review[]
   adminId        Int
   admin          Admin[]  
   orderItem      OrderItem[]
   cart       Cart[]
+  cartItem   CartItem[]
   created      DateTime @default(now())
   updated      DateTime @default(now())
 }
@@ -52,8 +54,18 @@ model Product {
   productId Int
   product   Product    @relation(fields: [productId], references: [id])
   user      User       @relation(fields: [userId], references: [id])
+  cartItem  CartItem[]
   created      DateTime @default(now())
   updated      DateTime @default(now())
+}
+
+model CartItem {
+  id         Int      @id @default(autoincrement())
+  cartId     Int
+  cart       Cart     @relation(fields: [cartId], references: [id])
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+  quantity   Int
 }
 
 model Order {

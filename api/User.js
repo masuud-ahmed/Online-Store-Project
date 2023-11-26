@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import "dotenv/config.js";
 const SECTRET_KEY = "secret"
 import userVerify from "../Middleware/userVerify.js"; 
+import adminVerify from "../Middleware/adminVerify.js";
 
 const router = express.Router();
 
@@ -28,6 +29,7 @@ router.post("/signup", async (req, res) => {
 
     const newuser = await prisma.user.create({
       data: {
+        
         name: name,
         email: email,
         password: hashePassword,
@@ -86,7 +88,8 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
+///
+router.get("/", adminVerify,async (req, res) => {
   try {
     const users = await prisma.user.findMany()
 
